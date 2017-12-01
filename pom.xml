@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.jfaster</groupId>
+	<artifactId>mango-spring-boot-starter</artifactId>
+	<version>0.1</version>
+	<packaging>jar</packaging>
+
+	<name>mango-spring-boot-starter</name>
+	<description>Starter for mango</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+		<relativePath/>
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.source.version>1.8</java.source.version>
+		<java.target.version>1.8</java.target.version>
+
+		<hikaricp.version>2.6.0</hikaricp.version>
+		<mango.version>1.5.2</mango.version>
+
+		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jfaster</groupId>
+			<artifactId>mango</artifactId>
+			<version>${mango.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>${hikaricp.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.plugin.version}</version>
+				<configuration>
+					<source>${java.source.version}</source>
+					<target>${java.target.version}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.jfaster.mango.plugin.spring.starter.MangoAutoConfiguration
