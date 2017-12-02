@@ -18,7 +18,6 @@ package org.jfaster.mango.plugin.spring.config;
 
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author fangyanpeng.
@@ -28,7 +27,7 @@ public class MangoConfig {
 
     private String scanPackage;
 
-    private Map<String,Map<String,MangoHikaricpConfig>> datasources;
+    private List<MangoDataSourceConfig> datasources;
 
     private String factoryClass;
 
@@ -54,11 +53,11 @@ public class MangoConfig {
         this.scanPackage = scanPackage;
     }
 
-    public Map<String, Map<String, MangoHikaricpConfig>> getDatasources() {
+    public List<MangoDataSourceConfig> getDatasources() {
         return datasources;
     }
 
-    public void setDatasources(Map<String, Map<String, MangoHikaricpConfig>> datasources) {
+    public void setDatasources(List<MangoDataSourceConfig> datasources) {
         this.datasources = datasources;
     }
 

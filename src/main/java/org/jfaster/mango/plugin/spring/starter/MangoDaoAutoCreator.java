@@ -18,6 +18,7 @@ package org.jfaster.mango.plugin.spring.starter;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.jfaster.mango.annotation.DB;
+import org.jfaster.mango.datasource.AbstractDataSourceFactory;
 import org.jfaster.mango.datasource.DataSourceFactory;
 import org.jfaster.mango.datasource.MasterSlaveDataSourceFactory;
 import org.jfaster.mango.datasource.SimpleDataSourceFactory;
@@ -25,14 +26,11 @@ import org.jfaster.mango.interceptor.Interceptor;
 import org.jfaster.mango.operator.Mango;
 import org.jfaster.mango.operator.cache.CacheHandler;
 import org.jfaster.mango.plugin.spring.DefaultMangoFactoryBean;
-import org.jfaster.mango.plugin.spring.config.MangoHikaricpConfig;
+import org.jfaster.mango.plugin.spring.config.*;
 import org.jfaster.mango.util.Strings;
 import org.jfaster.mango.util.logging.InternalLogger;
 import org.jfaster.mango.util.logging.InternalLoggerFactory;
 import org.jfaster.mango.util.reflect.Reflection;
-import org.jfaster.mango.plugin.spring.config.MangoConfig;
-import org.jfaster.mango.plugin.spring.config.MangoConfigFactory;
-import org.jfaster.mango.plugin.spring.config.NamedDataSource;
 import org.jfaster.mango.plugin.spring.exception.MangoAutoConfigException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
@@ -97,7 +95,7 @@ public class MangoDaoAutoCreator implements BeanFactoryPostProcessor,BeanPostPro
             }
         }
         if(factoryBeanClass.equals(DefaultMangoFactoryBean.class)){
-            Map<String,Map<String,MangoHikaricpConfig>> datasources = config.getDatasources();
+            List<MangoDataSourceConfig> datasources = config.getDatasources();
             if(datasources == null || datasources.size() == 0){
                 throw new MangoAutoConfigException("mango.datasources is not configured");
             }
@@ -149,51 +147,36 @@ public class MangoDaoAutoCreator implements BeanFactoryPostProcessor,BeanPostPro
      * @param mango
      */
     private void configMangoDatasourceFactory(Mango mango){
-        for(Map.Entry<String,Map<String,MangoHikaricpConfig>> datasourceEntry : config.getDatasources().entrySet()){
-            String dataSourceKey = datasourceEntry.getKey();
-            Map<String,MangoHikaricpConfig> datasourceGroup = datasourceEntry.getValue();
-            boolean hasMaster = false;
-            DataSource masterDataSource = null;
-            List<DataSource> slaveDataSources = null;
-            DataSourceFactory dataSourceFactory;
-            for (Map.Entry<String,MangoHikaricpConfig> datasource : datasourceGroup.entrySet()){
-                String key = datasource.getKey();
-                MangoHikaricpConfig dataSourceConfig = datasource.getValue();
-                String dataSourceRef = dataSourceConfig.getRef();
-                if(NamedDataSource.isMaster(key)){
-                    if(hasMaster){
-                        throw new MangoAutoConfigException("Exists more than one master datasource");
-                    }
-                    hasMaster = true;
-                    masterDataSource = getDataSource(dataSourceRef,dataSourceConfig);
-                }else if(NamedDataSource.isSlave(key)){
-                    if(slaveDataSources == null){
-                        slaveDataSources = new ArrayList<>();
-                    }
-                    slaveDataSources.add(getDataSource(dataSourceRef,dataSourceConfig));
-
-                }else {
-                    logger.info("'{}' is a illegal datasource key",key);
-                }
-            }
-            if(!hasMaster){
+        for(MangoDataSourceConfig dataSourceConfig : config.getDatasources()){
+            String name = dataSourceConfig.getName();
+            MangoHikaricpConfig masterConfig = dataSourceConfig.getMaster();
+            List<MangoHikaricpConfig> slaveConfigs = dataSourceConfig.getSlaves();
+            if(masterConfig == null){
                 throw new MangoAutoConfigException("Does not exist master datasource");
             }
-
-            if(slaveDataSources == null){ //SimpleDataSourceFactory
-                dataSourceFactory = new SimpleDataSourceFactory(dataSourceKey,masterDataSource);
-            }else { //MasterSlaveDataSourceFactory
-                dataSourceFactory = new MasterSlaveDataSourceFactory(dataSourceKey,masterDataSource,slaveDataSources);
+            if(Strings.isEmpty(name)){
+                name = AbstractDataSourceFactory.DEFULT_NAME;
+            }
+            DataSourceFactory dataSourceFactory;
+            DataSource masterDataSource = getDataSource(masterConfig);
+            if(slaveConfigs == null || slaveConfigs.isEmpty()){
+                dataSourceFactory = new SimpleDataSourceFactory(name,masterDataSource);
+            }else {
+                List<DataSource> slaves = new ArrayList<>(slaveConfigs.size());
+                for(MangoHikaricpConfig hikaricpConfig : slaveConfigs){
+                    slaves.add(getDataSource(hikaricpConfig));
+                }
+                dataSourceFactory = new MasterSlaveDataSourceFactory(name,masterDataSource,slaves);
             }
             mango.addDataSourceFactory(dataSourceFactory);
         }
     }
 
-    private DataSource getDataSource(String dataSourceRef,MangoHikaricpConfig dataSourceConfig){
-        if(!Strings.isEmpty(dataSourceRef)) {
-            DataSource dataSource = context.getBean(dataSourceRef, DataSource.class);
+    private DataSource getDataSource(MangoHikaricpConfig dataSourceConfig){
+        if(!Strings.isEmpty(dataSourceConfig.getRef())) {
+            DataSource dataSource = context.getBean(dataSourceConfig.getRef(), DataSource.class);
             if (dataSource == null) {
-                throw new MangoAutoConfigException("'%s' not exist in spring context", dataSourceRef);
+                throw new MangoAutoConfigException("'%s' not exist in spring context", dataSourceConfig.getRef());
             }
             return dataSource;
         }

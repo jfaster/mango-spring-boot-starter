@@ -12,7 +12,7 @@ Mango针对springboot提供的starter
     <dependency>
         <groupId>org.jfaster</groupId>
         <artifactId>mango-spring-boot-starter</artifactId>
-        <version>0.1</version>
+        <version>0.2</version>
     </dependency>
    ```
    
@@ -25,9 +25,8 @@ Mango针对springboot提供的starter
       scan-package: org.jfster.mango.dao
       #mango引用数据源名配置，ds1和ds2..是数据源的key，可以自定义，如果没有slave，可以不配置。
       #mango中的连接池使用hikaricp，所以hikaricp中的配置在此都可以配置。
-      #规则: mang.datasources.[数据源在mango中的名称].[master | slave数字].[数据源配置项]
       datasources:
-        ds1:
+        - name: ds1
           master:
             driver-class-name: com.mysql.jdbc.Driver
             jdbc-url: jdbc:mysql://127.0.0.1:3306/test
@@ -36,18 +35,18 @@ Mango针对springboot提供的starter
             maximum-pool-size: 10
             connection-timeout: 3000
     
-          #slave1:
-          #  driver-class-name: com.mysql.jdbc.Driver
-          #  jdbc-url: jdbc:mysql://127.0.0.1:3306/test
-          #  user-name: root
-          #  password: 272777475
-          #  maximum-pool-size: 10
-          #  connection-timeout: 3000
+          #slaves:
+          #  - driver-class-name: com.mysql.jdbc.Driver
+          #    jdbc-url: jdbc:mysql://127.0.0.1:3306/test
+          #    user-name: root
+          #    password: 272777475
+          #    maximum-pool-size: 10
+          #    connection-timeout: 3000
     
-          #如果不想使用内置的连接池，在此指定其他数据源的bean
-          #slave2:
-          #  ref: 其他数据源在spring中的id
-        #ds2:
+        #如果不想使用内置的连接池，在此指定其他数据源的bean
+          #  - ref: 其他数据源在spring中的id
+    
+        #- name: ds2
         #  master:
         #    driver-class-name: com.mysql.jdbc.Driver
         #    jdbc-url: jdbc:mysql://127.0.0.1:3306/test
@@ -92,29 +91,32 @@ Mango针对springboot提供的starter
       #mango引用数据源名配置，ds1和ds2..是数据源的key，可以自定义，如果没有slave，可以不配置。
       #mango中的连接池使用hikaricp，所以hikaricp中的配置在此都可以配置。
       #规则: mang.datasources.[数据源在mango中的名称].[master | slave数字].[数据源配置项]
-      mango.datasources.ds1.master.driver-class-name=com.mysql.jdbc.Driver
-      mango.datasources.ds1.master.jdbc-url=jdbc:mysql://127.0.0.1:3306/test
-      mango.datasources.ds1.master.user-name=root
-      mango.datasources.ds1.master.password=272777475
-      mango.datasources.ds1.master.maximum-pool-size=10
-      mango.datasources.ds1.master.connection-timeout=3000
       
-      #mango.datasources.ds1.slave1.driver-class-name=com.mysql.jdbc.Driver
-      #mango.datasources.ds1.slave1.jdbc-url-class-name=jdbc:mysql://127.0.0.1:3306/test
-      #mango.datasources.ds1.slave1.user-name=root
-      #mango.datasources.ds1.slave1.password=272777475
-      #mango.datasources.ds1.slave1.maximum-pool-size=10
-      #mango.datasources.ds1.slave1.connection-timeout=3000
+      mango.datasources[0].name=ds1
+      mango.datasources[0].master.driver-class-name=com.mysql.jdbc.Driver
+      mango.datasources[0].master.jdbc-url=jdbc:mysql://127.0.0.1:3306/test
+      mango.datasources[0].master.user-name=root
+      mango.datasources[0].master.password=272777475
+      mango.datasources[0].master.maximum-pool-size=10
+      mango.datasources[0].master.connection-timeout=3000
+      
+      #mango.datasources[0].slaves[0].driver-class-name=com.mysql.jdbc.Driver
+      #mango.datasources[0].slaves[0].jdbc-url-class-name=jdbc:mysql://127.0.0.1:3306/test
+      #mango.datasources[0].slaves[0].user-name=root
+      #mango.datasources[0].slaves[0].password=272777475
+      #mango.datasources[0].slaves[0].maximum-pool-size=10
+      #mango.datasources[0].slaves[0].connection-timeout=3000
       
       #如果不想使用内置的连接池，在此指定其他数据源的bean。
-      #mango.datasources.ds1.slave2.ref=其他数据源在spring中的id
+      #mango.datasource[0].slaves[1].ref=其他数据源在spring中的id
       
-      #mango.datasources.ds2.master.driver-class-name=com.mysql.jdbc.Driver
-      #mango.datasources.ds2.master.jdbc-url-class-name=jdbc:mysql://127.0.0.1:3306/test
-      #mango.datasources.ds2.master.user-name=root
-      #mango.datasources.ds2.master.password=272777475
-      #mango.datasources.ds2.master.maximum-pool-size=10
-      #mango.datasources.ds2.master.connection-timeout=3000
+      #mango.datasources[1].name=ds2
+      #mango.datasources[1].master.driver-class-name=com.mysql.jdbc.Driver
+      #mango.datasources[1].master.jdbc-url-class-name=jdbc:mysql://127.0.0.1:3306/test
+      #mango.datasources[1].master.user-name=root
+      #mango.datasources[1].master.password=272777475
+      #mango.datasources[1].master.maximum-pool-size=10
+      #mango.datasources[1].master.connection-timeout=3000
       
       #获取mango实例工厂，默认是org.jfaster.mango.plugin.spring.DefaultMangoFactoryBean，从spring容器中获取mango实例
       #默认就可以，如果有特殊需要可以指定自己的mango工厂类，继承org.jfaster.mango.plugin.spring.AbstractMangoFactoryBean实现createMango()方法

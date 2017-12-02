@@ -5,7 +5,7 @@
 
 	<groupId>org.jfaster</groupId>
 	<artifactId>mango-spring-boot-starter</artifactId>
-	<version>0.1</version>
+	<version>0.2</version>
 	<packaging>jar</packaging>
 
 	<name>mango-spring-boot-starter</name>
