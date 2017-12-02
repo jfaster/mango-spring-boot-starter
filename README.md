@@ -89,9 +89,7 @@ Mango针对springboot提供的starter
       mango.scan-package=org.jfster.mango.dao
       
       #mango引用数据源名配置，ds1和ds2..是数据源的key，可以自定义，如果没有slave，可以不配置。
-      #mango中的连接池使用hikaricp，所以hikaricp中的配置在此都可以配置。
-      #规则: mang.datasources.[数据源在mango中的名称].[master | slave数字].[数据源配置项]
-      
+      #mango中的连接池使用hikaricp，所以hikaricp中的配置在此都可以配置。      
       mango.datasources[0].name=ds1
       mango.datasources[0].master.driver-class-name=com.mysql.jdbc.Driver
       mango.datasources[0].master.jdbc-url=jdbc:mysql://127.0.0.1:3306/test
