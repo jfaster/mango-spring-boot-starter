@@ -12,7 +12,7 @@ Mango针对springboot提供的starter
     <dependency>
         <groupId>org.jfaster</groupId>
         <artifactId>mango-spring-boot-starter</artifactId>
-        <version>0.2</version>
+        <version>0.3</version>
     </dependency>
    ```
    

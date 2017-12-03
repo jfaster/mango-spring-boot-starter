@@ -33,7 +33,7 @@ public class MangoConfigFactory {
 
     public static MangoConfig getMangoConfig(DefaultListableBeanFactory beanFactory,String prefix){
         MangoConfig target = new MangoConfig();
-        PropertiesConfigurationFactory<Object> factory = new PropertiesConfigurationFactory<>(target);
+        PropertiesConfigurationFactory<Object> factory = new PropertiesConfigurationFactory<Object>(target);
         factory.setPropertySources(deducePropertySources(beanFactory));
         factory.setConversionService(new DefaultConversionService());
         factory.setIgnoreInvalidFields(false);
