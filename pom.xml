@@ -51,7 +51,7 @@
 		<java.target.version>1.7</java.target.version>
 
 		<hikaricp.version>2.6.0</hikaricp.version>
-		<mango.version>1.6.0</mango.version>
+		<mango.version>1.6.1</mango.version>
 
 		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 	</properties>
