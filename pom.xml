@@ -5,7 +5,7 @@
 
 	<groupId>org.jfaster</groupId>
 	<artifactId>mango-spring-boot-starter</artifactId>
-	<version>0.4</version>
+	<version>2.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>mango-spring-boot-starter</name>
@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.9.RELEASE</version>
+		<version>2.0.2.RELEASE</version>
 		<relativePath/>
 	</parent>
 
@@ -42,17 +42,21 @@
 			<url>https://github.com/fang-yan-peng</url>
 			<timezone>8</timezone>
 		</developer>
+		<developer>
+			<id>lanmo830</id>
+			<name>yangnan</name>
+			<email>xjxyyn@163.com</email>
+			<url>https://github.com/lanmo</url>
+			<timezone>8</timezone>
+		</developer>
 	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.source.version>1.7</java.source.version>
-		<java.target.version>1.7</java.target.version>
-
-		<hikaricp.version>2.6.0</hikaricp.version>
+		<java.source.version>1.8</java.source.version>
+		<java.target.version>1.8</java.target.version>
 		<mango.version>1.6.1</mango.version>
-
 		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 	</properties>
 
@@ -88,7 +92,6 @@
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>${hikaricp.version}</version>
 		</dependency>
 
 	</dependencies>

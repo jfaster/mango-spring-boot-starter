@@ -16,103 +16,103 @@
 
 package org.jfaster.mango.plugin.spring.config;
 
-import org.jfaster.mango.plugin.spring.exception.MangoAutoConfigException;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.bind.PropertiesConfigurationFactory;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.core.env.*;
-
-import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Consumer;
+import org.springframework.beans.PropertyEditorRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.context.properties.bind.BindHandler;
+import org.springframework.boot.context.properties.bind.BindResult;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.bind.PropertySourcesPlaceholdersResolver;
+import org.springframework.boot.context.properties.bind.handler.IgnoreErrorsBindHandler;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySources;
 
 /**
- * @author fangyanpeng.
+ * @author yangnan.
  */
 public class MangoConfigFactory {
 
-    public static MangoConfig getMangoConfig(DefaultListableBeanFactory beanFactory,String prefix){
-        MangoConfig target = new MangoConfig();
-        PropertiesConfigurationFactory<Object> factory = new PropertiesConfigurationFactory<Object>(target);
-        factory.setPropertySources(deducePropertySources(beanFactory));
-        factory.setConversionService(new DefaultConversionService());
-        factory.setIgnoreInvalidFields(false);
-        factory.setIgnoreUnknownFields(true);
-        factory.setIgnoreNestedProperties(false);
-        factory.setTargetName(prefix);
-        try {
-            factory.bindPropertiesToTarget();
-        }
-        catch (Exception ex) {
-            throw new MangoAutoConfigException(ex);
-        }
-        return target;
+    /**
+     * 获取配置
+     *
+     * @param beanFactory beanFactory
+     * @param prefix 前缀
+     * @return
+     */
+    public static MangoConfig getMangoConfig(DefaultListableBeanFactory beanFactory, String prefix) {
+        MangoConfig config = new MangoConfig();
+        Bindable<?> target = Bindable.ofInstance(config);
+        PropertySources propertySources = getPropertySources(beanFactory);
+        BindHandler bindHandler = getBindHandler();
+        BindResult configBindResult = getBinder(propertySources, beanFactory).bind(prefix, target, bindHandler);
+        return (MangoConfig) configBindResult.get();
     }
 
 
-    private static PropertySources deducePropertySources(DefaultListableBeanFactory beanFactory) {
+    private static Binder getBinder(PropertySources propertySources, DefaultListableBeanFactory beanFactory) {
+        return new Binder(getConfigurationPropertySources(propertySources),
+                          getPropertySourcesPlaceholdersResolver(propertySources), getConversionService(),
+                          getPropertyEditorInitializer(beanFactory));
+    }
+
+    private static Consumer<PropertyEditorRegistry> getPropertyEditorInitializer(DefaultListableBeanFactory beanFactory) {
+        return beanFactory::copyRegisteredEditorsTo;
+    }
+
+    private static ConversionService getConversionService() {
+        return new DefaultConversionService();
+    }
+
+    private static Iterable<ConfigurationPropertySource> getConfigurationPropertySources(PropertySources propertySources) {
+        return ConfigurationPropertySources.from(propertySources);
+    }
+
+    private static PropertySourcesPlaceholdersResolver getPropertySourcesPlaceholdersResolver(PropertySources propertySources) {
+        return new PropertySourcesPlaceholdersResolver(propertySources);
+    }
+
+    private static BindHandler getBindHandler() {
+        BindHandler handler = new IgnoreErrorsBindHandler();
+        return handler;
+    }
+
+    public static PropertySources getPropertySources(DefaultListableBeanFactory beanFactory) {
         PropertySourcesPlaceholderConfigurer configurer = getSinglePropertySourcesPlaceholderConfigurer(beanFactory);
         if (configurer != null) {
-            return new FlatPropertySources(configurer.getAppliedPropertySources());
+            return configurer.getAppliedPropertySources();
         }
-        Environment environment = new StandardEnvironment();
-        MutablePropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
-        return new FlatPropertySources(propertySources);
+        MutablePropertySources sources = extractEnvironmentPropertySources(beanFactory);
+        if (sources != null) {
+            return sources;
+        }
+        throw new IllegalStateException("Unable to obtain PropertySources from "
+                                                + "PropertySourcesPlaceholderConfigurer or Environment");
+    }
 
+    private static MutablePropertySources extractEnvironmentPropertySources(DefaultListableBeanFactory beanFactory) {
+        Environment environment = beanFactory.getBean(Environment.class);
+        if (environment instanceof ConfigurableEnvironment) {
+            return ((ConfigurableEnvironment) environment).getPropertySources();
+        }
+        return null;
     }
 
     private static PropertySourcesPlaceholderConfigurer getSinglePropertySourcesPlaceholderConfigurer(DefaultListableBeanFactory beanFactory) {
+        // Take care not to cause early instantiation of all FactoryBeans
         Map<String, PropertySourcesPlaceholderConfigurer> beans = beanFactory.getBeansOfType(PropertySourcesPlaceholderConfigurer.class, false, false);
         if (beans.size() == 1) {
             return beans.values().iterator().next();
         }
         return null;
-    }
-
-    private static class FlatPropertySources implements PropertySources {
-
-        private PropertySources propertySources;
-
-        FlatPropertySources(PropertySources propertySources) {
-            this.propertySources = propertySources;
-        }
-
-        @Override
-        public Iterator<PropertySource<?>> iterator() {
-            MutablePropertySources result = getFlattened();
-            return result.iterator();
-        }
-
-        @Override
-        public boolean contains(String name) {
-            return get(name) != null;
-        }
-
-        @Override
-        public PropertySource<?> get(String name) {
-            return getFlattened().get(name);
-        }
-
-        private MutablePropertySources getFlattened() {
-            MutablePropertySources result = new MutablePropertySources();
-            for (PropertySource<?> propertySource : this.propertySources) {
-                flattenPropertySources(propertySource, result);
-            }
-            return result;
-        }
-
-        private void flattenPropertySources(PropertySource<?> propertySource, MutablePropertySources result) {
-            Object source = propertySource.getSource();
-            if (source instanceof ConfigurableEnvironment) {
-                ConfigurableEnvironment environment = (ConfigurableEnvironment) source;
-                for (PropertySource<?> childSource : environment.getPropertySources()) {
-                    flattenPropertySources(childSource, result);
-                }
-            }
-            else {
-                result.addLast(propertySource);
-            }
-        }
     }
 
 }
