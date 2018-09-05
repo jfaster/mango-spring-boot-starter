@@ -4,7 +4,8 @@
 Mango针对springboot提供的starter
 
 # 例子
->  * JDK 1.7 or above
+>  * JDK 1.8 or above
+>  * springboot 2.x
 >  * 编译工具 [Maven][maven] or [Gradle][gradle]
 
 ## 添加依赖
@@ -12,7 +13,7 @@ Mango针对springboot提供的starter
     <dependency>
         <groupId>org.jfaster</groupId>
         <artifactId>mango-spring-boot-starter</artifactId>
-        <version>0.4</version>
+        <version>2.0.1</version>
     </dependency>
    ```
    
