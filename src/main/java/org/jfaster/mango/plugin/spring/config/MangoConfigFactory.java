@@ -81,7 +81,7 @@ public class MangoConfigFactory {
     }
 
     private static BindHandler getBindHandler() {
-        BindHandler handler = new IgnoreErrorsBindHandler();
+        BindHandler handler = new ThrowErrorBindHandler();
         return handler;
     }
 
